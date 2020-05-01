@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet type="text/xsl" href="/xml/base.min.xml" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R Markdown on Nichole Monhait</title>
+    <link>/tags/r-markdown/</link>
+    <description>Recent content in R Markdown on Nichole Monhait</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 25 Apr 2020 00:00:00 +0000</lastBuildDate>
+    <atom:link href="/tags/r-markdown/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How to style plots with your organization&#39;s official colors and fonts</title>
+      <link>/post/how-to-style-plots-with-to-look-like-your-organization-s/</link>
+      <pubDate>Thu, 30 Apr 2020 00:00:00 +0000</pubDate>
+      <guid>/post/how-to-style-plots-with-to-look-like-your-organization-s/</guid>
+      <description>
+
+
+&lt;p&gt;In my last post, I talked a bit about how to create your own custom ggplot theme and the benefits of doing so. If you want to learn more about why I think this is so useful, that post may be a good starting point. In this post, I am going to do a practice example on how to actually do this with your organization’s style guide. For this, I am going to take a simple plot and attempt to style it with Colorado State University’s style guide- Go Rams! For official use, you would need to get permission to use this branding, so I would really only do this if you are affiliated with an organization. I hope my alma mater status at CSU makes me eligible for this project…&lt;/p&gt;
+&lt;div id=&#34;finding-the-style-guide&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Finding the style guide&lt;/h3&gt;
+&lt;p&gt;If you are working for an organization, you should be able to find the style guide and typography internally. Your marketing team should have that readily available for you. Most universities publish their official colors and fonts online, so I decided to take this route. A simple google search for “Colorado State official style guide” did it for me. See &lt;a href=&#34;https://brand.colostate.edu/color/&#34;&gt;here&lt;/a&gt; for the style guide.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;starting-plot&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Starting plot&lt;/h3&gt;
+&lt;p&gt;Like before, I will start with a really simple graph using data from &lt;code&gt;mtcars&lt;/code&gt;. This time, I will add a fake title, subtitle, and caption to align with my Colorado State theme.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
+library(extrafont)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot &amp;lt;- ggplot(data = mtcars, aes(x = disp, y = mpg)) + 
+  geom_point() +
+  labs(title = &amp;quot;Colorado State Plot&amp;quot;,
+       subtitle = &amp;quot;Go Rams!&amp;quot;,
+       caption = &amp;quot;I got my MPH from CSU in 2019&amp;quot;) 
+
+plot&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-04-30-how-to-style-plots-with-to-look-like-your-organization-s_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;styling-the-plot&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Styling the plot&lt;/h3&gt;
+&lt;p&gt;The plot above is really generic. That isn’t to say that generic plots don’t have value but it would be professional and clean to style this in a way that aligns with the organization you are a part of. To do this, I will use the style guide I found to add to this plot. I will change the colors, fonts, and formatting using the &lt;code&gt;theme()&lt;/code&gt; function as I did in my previous post. Only one of the listed fonts in the CSU style guide comes baked into &lt;code&gt;extrafont&lt;/code&gt;, so I had to use that. There are other ways the get additional font families into R, but I will save that for another day.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot +
+  geom_point(color = &amp;quot;#59595B&amp;quot;, size = 3) +
+  theme_minimal() +
+  theme(
+      panel.grid.major = element_line(color = &amp;quot;#C8C372&amp;quot;, linetype = &amp;quot;dotted&amp;quot;),
+      panel.grid.minor = element_line(color = &amp;quot;#C8C372&amp;quot;, linetype = &amp;quot;dotted&amp;quot;),
+      plot.title = element_text(family = &amp;quot;Helvetica Neue&amp;quot;, face = &amp;quot;bold&amp;quot;, size = 24, color = &amp;quot;#1E4D2B&amp;quot;),
+      plot.subtitle = element_text(family = &amp;quot;Helvetica Neue&amp;quot;, face = &amp;quot;bold&amp;quot;, size = 16, color = &amp;quot;#D9782D&amp;quot;),
+      axis.title = element_text(family = &amp;quot;Helvetica Neue&amp;quot;, size = 14, color = &amp;quot;#1E4D2B&amp;quot;, face = &amp;quot;bold&amp;quot;),
+      axis.text = element_text(family = &amp;quot;Helvetica Neue&amp;quot;, size = 12, color = &amp;quot;#1E4D2B&amp;quot;)
+    
+  )&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-04-30-how-to-style-plots-with-to-look-like-your-organization-s_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;By simply changing colors, fonts, size, and appearance, I was able to make a pretty nice looking plot. If you are more artistic than me, which you likely are, this could look even better! The final product here is a plot styled using the official hex colors and fonts of Colorado State University. To take it a step further, you could create a function from the adjusted &lt;code&gt;theme()&lt;/code&gt;. Since I used &lt;code&gt;theme_minimal()&lt;/code&gt; as my starting point. I used &lt;code&gt;theme_minimal() %+replace%&lt;/code&gt; to replace elements of the pre-existing theme.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;theme_csu &amp;lt;- function(){
+  
+theme_minimal() %+replace%
+    
+  theme(
+    
+      panel.grid.major = element_line(color = &amp;quot;#C8C372&amp;quot;, linetype = &amp;quot;dotted&amp;quot;),
+      panel.grid.minor = element_line(color = &amp;quot;#C8C372&amp;quot;, linetype = &amp;quot;dotted&amp;quot;),
+      plot.title = element_text(family = &amp;quot;Helvetica Neue&amp;quot;, face = &amp;quot;bold&amp;quot;, size = 24, color = &amp;quot;#1E4D2B&amp;quot;),
+      plot.subtitle = element_text(family = &amp;quot;Helvetica Neue&amp;quot;, face = &amp;quot;bold&amp;quot;, size = 16, color = &amp;quot;#D9782D&amp;quot;),
+      axis.title = element_text(family = &amp;quot;Helvetica Neue&amp;quot;, size = 14, color = &amp;quot;#1E4D2B&amp;quot;, face = &amp;quot;bold&amp;quot;),
+      axis.text = element_text(family = &amp;quot;Helvetica Neue&amp;quot;, size = 12, color = &amp;quot;#1E4D2B&amp;quot;)
+    
+  )
+  
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now that this is a function, it makes my life much easier when styling my plot. I can now source the script of this function for any work I am doing that needs to be styled this way.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot +
+  theme_csu()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-04-30-how-to-style-plots-with-to-look-like-your-organization-s_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    <item>
+      <title>Make your own custom ggplot theme</title>
+      <link>/post/make-your-own-custom-ggplot-theme/</link>
+      <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
+      <guid>/post/make-your-own-custom-ggplot-theme/</guid>
+      <description>
+
+
+&lt;div id=&#34;why-make-your-own-theme&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Why make your own theme?&lt;/h3&gt;
+&lt;p&gt;There are several great built in themes that you can use with ggplot(). In most cases, these are sufficient. However, you may want to customize a theme for yourself in a few scenarios. First, if you are at an organization or university that has a preset style guide (colors and fonts that remain consistent), it’s a great idea to create content that aligns with that guide. Second, if you find yourself altering your plots in the same way each time, it may be a good idea to create a theme to avoid the several lines of code that it may take to style your plots. For me, I have an affinity for &lt;code&gt;theme_minimal&lt;/code&gt; and absolutely no affinity for choosing nice looking color schemes. I would prefer to have a preset theme rather than code these adjustments (and google which colors ‘go’ together) each time. Lastly, it’s great practice to make a theme. It gives great insight into the backbone of ggplot themes, which I found to be really interesting.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;getting-started&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Getting started&lt;/h3&gt;
+&lt;p&gt;Since I often use &lt;code&gt;theme_minimal&lt;/code&gt;, that was my starting point. I knew that I wanted to add the following on top of the already nice &lt;code&gt;theme_minimal&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;black background&lt;br /&gt;
+&lt;/li&gt;
+&lt;li&gt;some sort of unique color scheme&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Since I knew I would need to test changes, I started with the following code (using &lt;code&gt;mtcars&lt;/code&gt; data) and plot rendered as-is.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;ggplot(data = mtcars, aes(x = disp, y = mpg)) + 
+  geom_point() +
+  labs(title = &amp;quot;Cars are cool?&amp;quot;,
+       subtitle = &amp;quot;Making a custom theme is cooler&amp;quot;,
+       caption = &amp;quot;I should start using captions more&amp;quot;) &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-04-29-make-your-own-custom-ggplot-theme_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;customizing-theme&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Customizing Theme&lt;/h3&gt;
+&lt;p&gt;At first glance, all of the options available inside of the &lt;code&gt;theme()&lt;/code&gt; function are a bit intimidating. You can literally customize anything…which is why it is so awesome. A simple &lt;code&gt;?theme&lt;/code&gt; will show you what is available. Once you realize the general structure, it is really quite easy- you designate which attribute you are trying to alter, modify using one of the 4 element functions (&lt;code&gt;element_text&lt;/code&gt;, &lt;code&gt;element_line&lt;/code&gt;, &lt;code&gt;element_rect&lt;/code&gt;, or &lt;code&gt;element_blank&lt;/code&gt;), and then change pieces like color, size, location, etc. For example, to change the plot color to black, I first found the appropriate call using &lt;code&gt;?theme&lt;/code&gt;. Using &lt;code&gt;plot.background&lt;/code&gt; (found from &lt;code&gt;?theme&lt;/code&gt;), I then called &lt;code&gt;element_rect&lt;/code&gt;, and set &lt;code&gt;fill = &amp;quot;black&lt;/code&gt;. This simple structure allows you to completely customize your own ggplot theme. I packaged this is a function titled &lt;code&gt;theme_nichole&lt;/code&gt; so that I can source the script if I decided to use this theme often. Within the function, I used &lt;code&gt;theme_minimal() %+replace%&lt;/code&gt; to build upon &lt;code&gt;theme_minimal&lt;/code&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;code&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Code&lt;/h3&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;theme_nichole &amp;lt;- function(){
+  
+  theme_minimal() %+replace%
+    
+    theme(
+      
+      
+      #grid elements
+      plot.background = element_rect(fill = &amp;quot;black&amp;quot;),#fill = &amp;quot;#3B3B3B&amp;quot;),
+      panel.background = element_rect(fill = &amp;quot;black&amp;quot;, size = 1, color = NA),
+      panel.border = element_blank(),
+      panel.grid.major = element_line(color = &amp;quot;#696969&amp;quot;, linetype = &amp;quot;dashed&amp;quot;, size = 0.2),
+      panel.grid.minor = element_line(color = &amp;quot;#696969&amp;quot;, linetype = &amp;quot;dashed&amp;quot;, size = 0.2),
+      
+      #text elements
+      plot.title = element_text(family = &amp;quot;Arial Black&amp;quot;, size = 18, color = &amp;quot;CadetBlue&amp;quot;, face = &amp;quot;bold&amp;quot;, hjust = 0.5 ),
+      plot.subtitle = element_text(family = &amp;quot;Trebuchet MS&amp;quot;, size = 12, face = &amp;quot;italic&amp;quot;, hjust = 0.5, color = &amp;quot;#F3F0E9&amp;quot;),
+      plot.caption = element_text(family = &amp;quot;Trebuchet MS&amp;quot;, size = 10, color = &amp;quot;#E7F0E9&amp;quot;, hjust = 1),
+      axis.title = element_text(family = &amp;quot;Arial&amp;quot;, size = 12, color = &amp;quot;#F3F0E9&amp;quot;),
+      axis.text = element_text(family = &amp;quot;Arial&amp;quot;, size = 12, color = &amp;quot;#F3F0E9&amp;quot;, face = &amp;quot;bold&amp;quot;),
+      axis.line = element_line(color = &amp;quot;#F8F5E0&amp;quot;, size = 1),
+      axis.line.x.top = element_line(color = &amp;quot;#3B3B3B&amp;quot;)
+      
+    )
+ 
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;ggplot(data = mtcars, aes(x = disp, y = mpg)) + 
+  geom_point(color = &amp;quot;white&amp;quot;) +
+  labs(title = &amp;quot;Cars are cool?&amp;quot;,
+       subtitle = &amp;quot;Making a custom theme is cooler&amp;quot;,
+       caption = &amp;quot;I should start using captions more&amp;quot;) +
+  theme_nichole()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-04-29-make-your-own-custom-ggplot-theme_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    <item>
+      <title>Mapping Income/Poverty in CO </title>
+      <link>/post/mapping-income-poverty-in-co/</link>
+      <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
+      <guid>/post/mapping-income-poverty-in-co/</guid>
+      <description>
+
+
+&lt;div id=&#34;data&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Data&lt;/h3&gt;
+&lt;/div&gt;
+&lt;div id=&#34;data-preparation&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Data Preparation&lt;/h3&gt;
+&lt;/div&gt;
+&lt;div id=&#34;mapping&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Mapping&lt;/h3&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    <item>
+      <title>Exploring Income/Poverty in Colorado Using R</title>
+      <link>/post/2020-04-25-co-poverty/</link>
+      <pubDate>Sat, 25 Apr 2020 00:00:00 +0000</pubDate>
+      <guid>/post/2020-04-25-co-poverty/</guid>
+      <description>
+
+
+&lt;div id=&#34;data&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Data&lt;/h3&gt;
+&lt;p&gt;The Colorado Department of Public Health and Environment (CDPHE) has an Open Data portal for many health indicators, linked &lt;a href=&#34;https://data-cdphe.opendata.arcgis.com/&#34;&gt;here&lt;/a&gt;. Data can be downloaded in .csv format, which is what I did here for the Income/Poverty dataset. The purpose of this project is to provide an easy framework to generate a similar visualization. This project has no relation to the accuracy of the data nor the insight gathered. I used the following code to bring the data into RStudio.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;co_income &amp;lt;- read_csv(&amp;quot;/Users/monhait/Desktop/r/nichole/data/IncomePoverty_Census_Tracts.csv&amp;quot;, col_names = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;data-preparation&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Data Preparation&lt;/h3&gt;
+&lt;p&gt;I decided that my end product would be a visualization of Colorado counties with the highest percentage of people below the poverty limit. I arbitrarily decided that my cutoff would be at the top 10 counties, so set &lt;code&gt;n=10&lt;/code&gt; at the beginning of my script.&lt;/p&gt;
+&lt;p&gt;To prepare the data, I first selected the columns &lt;code&gt;County&lt;/code&gt; and &lt;code&gt;Percent_Poverty_AllPeople_Income_Below_Pov_Level&lt;/code&gt;. Luckily, this dataset was already fairly clean. I then grouped on &lt;code&gt;County&lt;/code&gt;, to ultimately create the &lt;code&gt;average_poverty&lt;/code&gt; column which found the average percentage of people below the poverty limit per county. If you take a look at the unprepared data, you will see that there are several rows for each county, which is why I had to group them. After, I made the &lt;code&gt;County&lt;/code&gt; variable a factor and lumped to get my 10 columns. I used &lt;code&gt;n=n&lt;/code&gt; within the &lt;code&gt;fct_lump&lt;/code&gt; call to designate my cutoff of 10 that I discussed above. Using &lt;code&gt;fct_lump&lt;/code&gt; allows you to do this and all other counties then get an &lt;code&gt;Other&lt;/code&gt; designation, which was filtered out. Lastly, I added a &lt;code&gt;plot_text&lt;/code&gt; column that will later be used in the ggplot call.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;n &amp;lt;- 10
+
+poverty_by_county &amp;lt;- co_income %&amp;gt;% 
+  select(County, Percent_Poverty_AllPeople_Income_Below_Pov_Level) %&amp;gt;% 
+  group_by(County) %&amp;gt;% 
+  summarize(average_poverty = mean(Percent_Poverty_AllPeople_Income_Below_Pov_Level, na.rm = TRUE)) %&amp;gt;% 
+  ungroup() %&amp;gt;% 
+  mutate(County = as_factor(str_to_title(County)) %&amp;gt;% fct_lump(n = n, w = average_poverty) %&amp;gt;% 
+           fct_reorder(average_poverty)) %&amp;gt;% 
+  mutate_if(is.numeric, ~round(., 1)) %&amp;gt;% 
+  filter(County != &amp;quot;Other&amp;quot;) %&amp;gt;%    
+  mutate(plot_text = str_glue(&amp;quot;County: {County}\nPercent Poverty: {average_poverty}%&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To create the lollipop chart, I used &lt;code&gt;geom_segment&lt;/code&gt; and &lt;code&gt;geom_point&lt;/code&gt;. Additional customization code is shown below.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;co_county_poverty_plot &amp;lt;- poverty_by_county %&amp;gt;% 
+  
+  #Geometries
+  ggplot(aes(County, average_poverty)) +
+  geom_segment(aes(yend = 0, xend = County)) +
+  geom_point() +
+  geom_text(aes(label = plot_text),
+            hjust = &amp;quot;outward&amp;quot;,
+            size = 3) +
+  
+  #Formatting
+  scale_y_continuous(limits = c(0,50), expand = c(0,0)) +
+  coord_flip() +
+
+  #Labels
+  labs(title = &amp;quot;Colorado Counties with the Highest Poverty Percentage&amp;quot;,
+       subtitle = str_glue(&amp;quot;Top {n} based on CDPHE Open Data Portal&amp;quot;),
+       y = &amp;quot;Avg. Percent of all People Below Poverty Limit (%)&amp;quot;,
+       x = &amp;quot;County Name&amp;quot;) +
+  theme_minimal()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-04-25-co-poverty_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+  </channel>
+</rss>

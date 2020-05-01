@@ -1,0 +1,74 @@
+---
+title: "Exploring Income/Poverty in Colorado Using R"
+author: "Nichole Monhait"
+date: 2020-04-25
+tags: ["R Markdown", "plot", "income"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+```{r, include = FALSE}
+library(tidyverse)
+library(readr)
+```
+
+### Data
+
+The Colorado Department of Public Health and Environment (CDPHE) has an Open Data portal for many health indicators, linked [here](https://data-cdphe.opendata.arcgis.com/). Data can be downloaded in .csv format, which is what I did here for the Income/Poverty dataset. The purpose of this project is to provide an easy framework to generate a similar visualization. This project has no relation to the accuracy of the data nor the insight gathered.  I used the following code to bring the data into RStudio. 
+
+```{r, message=FALSE, warning=FALSE}
+co_income <- read_csv("/Users/monhait/Desktop/r/nichole/data/IncomePoverty_Census_Tracts.csv", col_names = TRUE)
+```
+
+### Data Preparation
+
+I decided that my end product would be a visualization of Colorado counties with the highest percentage of people below the poverty limit. I arbitrarily decided that my cutoff would be at the top 10 counties, so set `n=10` at the beginning of my script.   
+
+To prepare the data, I first selected the columns `County` and `Percent_Poverty_AllPeople_Income_Below_Pov_Level`. Luckily, this dataset was already fairly clean. I then grouped on `County`, to ultimately create the `average_poverty` column which found the average percentage of people below the poverty limit per county. If you take a look at the unprepared data, you will see that there are several rows for each county, which is why I had to group them. After, I made the `County` variable a factor and lumped to get my 10 columns. I used `n=n` within the `fct_lump` call to designate my cutoff of 10 that I discussed above. Using `fct_lump` allows you to do this and all other counties then get an `Other` designation, which was filtered out. Lastly, I added a `plot_text` column that will later be used in the ggplot call. 
+
+```{r, message=FALSE, warning=FALSE}
+n <- 10
+
+poverty_by_county <- co_income %>% 
+  select(County, Percent_Poverty_AllPeople_Income_Below_Pov_Level) %>% 
+  group_by(County) %>% 
+  summarize(average_poverty = mean(Percent_Poverty_AllPeople_Income_Below_Pov_Level, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(County = as_factor(str_to_title(County)) %>% fct_lump(n = n, w = average_poverty) %>% 
+           fct_reorder(average_poverty)) %>% 
+  mutate_if(is.numeric, ~round(., 1)) %>% 
+  filter(County != "Other") %>%    
+  mutate(plot_text = str_glue("County: {County}\nPercent Poverty: {average_poverty}%"))
+```
+
+To create the lollipop chart, I used `geom_segment` and `geom_point`. Additional customization code is shown below.  
+
+```{r, message=FALSE, warning=FALSE}
+co_county_poverty_plot <- poverty_by_county %>% 
+  
+  #Geometries
+  ggplot(aes(County, average_poverty)) +
+  geom_segment(aes(yend = 0, xend = County)) +
+  geom_point() +
+  geom_text(aes(label = plot_text),
+            hjust = "outward",
+            size = 3) +
+  
+  #Formatting
+  scale_y_continuous(limits = c(0,50), expand = c(0,0)) +
+  coord_flip() +
+
+  #Labels
+  labs(title = "Colorado Counties with the Highest Poverty Percentage",
+       subtitle = str_glue("Top {n} based on CDPHE Open Data Portal"),
+       y = "Avg. Percent of all People Below Poverty Limit (%)",
+       x = "County Name") +
+  theme_minimal()
+```
+
+```{r, message=FALSE, warning=FALSE, echo = FALSE}
+co_county_poverty_plot
+```
+

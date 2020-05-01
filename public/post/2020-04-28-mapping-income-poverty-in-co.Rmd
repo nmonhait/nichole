@@ -1,0 +1,16 @@
+---
+title: 'Mapping Income/Poverty in CO '
+author: Nichole Monhait
+date: '2020-04-29'
+slug: mapping-income-poverty-in-co
+categories: []
+tags:
+  - income
+  - map
+---
+
+### Data  
+
+### Data Preparation  
+
+### Mapping  

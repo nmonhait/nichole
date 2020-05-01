@@ -1,0 +1,86 @@
+---
+title: How to style plots with your organization's official colors and fonts
+author: Nichole Monhait
+date: '2020-04-30'
+slug: how-to-style-plots-with-to-look-like-your-organization-s
+categories: []
+tags:
+  - customize
+  - ggplot
+---
+
+In my last post, I talked  a bit about how to create your own custom ggplot theme and the benefits of doing so. If you want to learn more about why I think this is so useful, that post may be a good starting point. In this post, I am going to do a practice example on how to actually do this with your organization's style guide. For this, I am going to take a simple plot and attempt to style it with Colorado State University's style guide- Go Rams! For official use, you would need to get permission to use this branding, so I would really only do this if you are affiliated with an organization. I hope my alma mater status at CSU makes me eligible for this project...   
+
+### Finding the style guide  
+
+If you are working for an organization, you should be able to find the style guide and typography internally. Your marketing team should have that readily available for you. Most universities publish their official colors and fonts online, so I decided to take this route. A simple google search for "Colorado State official style guide" did it for me. See [here](https://brand.colostate.edu/color/) for the style guide.
+
+### Starting plot  
+
+Like before, I will start with a really simple graph using data from `mtcars`. This time, I will add a fake title, subtitle, and caption to align with my Colorado State theme.   
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(extrafont)
+```
+
+```{r, message=FALSE, warning=FALSE}
+plot <- ggplot(data = mtcars, aes(x = disp, y = mpg)) + 
+  geom_point() +
+  labs(title = "Colorado State Plot",
+       subtitle = "Go Rams!",
+       caption = "I got my MPH from CSU in 2019") 
+
+plot
+```
+
+### Styling the plot  
+
+The plot above is really generic. That isn't to say that generic plots don't have value but it would be professional and clean to style this in a way that aligns with the organization you are a part of. To do this, I will use the style guide I found to add to this plot. I will change the colors, fonts, and formatting using the `theme()` function as I did in my previous post. Only one of the listed fonts in the CSU style guide comes baked into `extrafont`, so I had to use that. There are other ways the get additional font families into R, but I will save that for another day.    
+
+```{r, message=FALSE, warning=FALSE}
+
+plot +
+  geom_point(color = "#59595B", size = 3) +
+  theme_minimal() +
+  theme(
+      panel.grid.major = element_line(color = "#C8C372", linetype = "dotted"),
+      panel.grid.minor = element_line(color = "#C8C372", linetype = "dotted"),
+      plot.title = element_text(family = "Helvetica Neue", face = "bold", size = 24, color = "#1E4D2B"),
+      plot.subtitle = element_text(family = "Helvetica Neue", face = "bold", size = 16, color = "#D9782D"),
+      axis.title = element_text(family = "Helvetica Neue", size = 14, color = "#1E4D2B", face = "bold"),
+      axis.text = element_text(family = "Helvetica Neue", size = 12, color = "#1E4D2B")
+    
+  )
+  
+```
+
+By simply changing colors, fonts, size, and appearance, I was able to make a pretty nice looking plot. If you are more artistic than me, which you likely are, this could look even better! The final product here is a plot styled using the official hex colors and fonts of Colorado State University. To take it a step further, you could create a function from the adjusted `theme()`. Since I used `theme_minimal()` as my starting point. I used `theme_minimal() %+replace%` to replace elements of the pre-existing theme. 
+
+```{r, message=FALSE, warning=FALSE}
+theme_csu <- function(){
+  
+theme_minimal() %+replace%
+    
+  theme(
+    
+      panel.grid.major = element_line(color = "#C8C372", linetype = "dotted"),
+      panel.grid.minor = element_line(color = "#C8C372", linetype = "dotted"),
+      plot.title = element_text(family = "Helvetica Neue", face = "bold", size = 24, color = "#1E4D2B"),
+      plot.subtitle = element_text(family = "Helvetica Neue", face = "bold", size = 16, color = "#D9782D"),
+      axis.title = element_text(family = "Helvetica Neue", size = 14, color = "#1E4D2B", face = "bold"),
+      axis.text = element_text(family = "Helvetica Neue", size = 12, color = "#1E4D2B")
+    
+  )
+  
+}
+
+```
+
+Now that this is a function, it makes my life much easier when styling my plot. I can now source the script of this function for any work I am doing that needs to be styled this way.  
+
+```{r, warning=FALSE, message=FALSE}
+plot +
+  theme_csu()
+```
+

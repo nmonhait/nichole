@@ -1,0 +1,73 @@
+---
+title: Make your own custom ggplot theme
+author: Nichole Monhait
+date: '2020-04-29'
+slug: make-your-own-custom-ggplot-theme
+categories: []
+tags:
+  - customize
+  - ggplot
+---
+
+
+
+<div id="why-make-your-own-theme" class="section level3">
+<h3>Why make your own theme?</h3>
+<p>There are several great built in themes that you can use with ggplot(). In most cases, these are sufficient. However, you may want to customize a theme for yourself in a few scenarios. First, if you are at an organization or university that has a preset style guide (colors and fonts that remain consistent), it’s a great idea to create content that aligns with that guide. Second, if you find yourself altering your plots in the same way each time, it may be a good idea to create a theme to avoid the several lines of code that it may take to style your plots. For me, I have an affinity for <code>theme_minimal</code> and absolutely no affinity for choosing nice looking color schemes. I would prefer to have a preset theme rather than code these adjustments (and google which colors ‘go’ together) each time. Lastly, it’s great practice to make a theme. It gives great insight into the backbone of ggplot themes, which I found to be really interesting.</p>
+</div>
+<div id="getting-started" class="section level3">
+<h3>Getting started</h3>
+<p>Since I often use <code>theme_minimal</code>, that was my starting point. I knew that I wanted to add the following on top of the already nice <code>theme_minimal</code>:</p>
+<ul>
+<li>black background<br />
+</li>
+<li>some sort of unique color scheme</li>
+</ul>
+<p>Since I knew I would need to test changes, I started with the following code (using <code>mtcars</code> data) and plot rendered as-is.</p>
+<pre class="r"><code>ggplot(data = mtcars, aes(x = disp, y = mpg)) + 
+  geom_point() +
+  labs(title = &quot;Cars are cool?&quot;,
+       subtitle = &quot;Making a custom theme is cooler&quot;,
+       caption = &quot;I should start using captions more&quot;) </code></pre>
+<p><img src="/post/2020-04-29-make-your-own-custom-ggplot-theme_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="customizing-theme" class="section level3">
+<h3>Customizing Theme</h3>
+<p>At first glance, all of the options available inside of the <code>theme()</code> function are a bit intimidating. You can literally customize anything…which is why it is so awesome. A simple <code>?theme</code> will show you what is available. Once you realize the general structure, it is really quite easy- you designate which attribute you are trying to alter, modify using one of the 4 element functions (<code>element_text</code>, <code>element_line</code>, <code>element_rect</code>, or <code>element_blank</code>), and then change pieces like color, size, location, etc. For example, to change the plot color to black, I first found the appropriate call using <code>?theme</code>. Using <code>plot.background</code> (found from <code>?theme</code>), I then called <code>element_rect</code>, and set <code>fill = &quot;black</code>. This simple structure allows you to completely customize your own ggplot theme. I packaged this is a function titled <code>theme_nichole</code> so that I can source the script if I decided to use this theme often. Within the function, I used <code>theme_minimal() %+replace%</code> to build upon <code>theme_minimal</code>.</p>
+</div>
+<div id="code" class="section level3">
+<h3>Code</h3>
+<pre class="r"><code>theme_nichole &lt;- function(){
+  
+  theme_minimal() %+replace%
+    
+    theme(
+      
+      
+      #grid elements
+      plot.background = element_rect(fill = &quot;black&quot;),#fill = &quot;#3B3B3B&quot;),
+      panel.background = element_rect(fill = &quot;black&quot;, size = 1, color = NA),
+      panel.border = element_blank(),
+      panel.grid.major = element_line(color = &quot;#696969&quot;, linetype = &quot;dashed&quot;, size = 0.2),
+      panel.grid.minor = element_line(color = &quot;#696969&quot;, linetype = &quot;dashed&quot;, size = 0.2),
+      
+      #text elements
+      plot.title = element_text(family = &quot;Arial Black&quot;, size = 18, color = &quot;CadetBlue&quot;, face = &quot;bold&quot;, hjust = 0.5 ),
+      plot.subtitle = element_text(family = &quot;Trebuchet MS&quot;, size = 12, face = &quot;italic&quot;, hjust = 0.5, color = &quot;#F3F0E9&quot;),
+      plot.caption = element_text(family = &quot;Trebuchet MS&quot;, size = 10, color = &quot;#E7F0E9&quot;, hjust = 1),
+      axis.title = element_text(family = &quot;Arial&quot;, size = 12, color = &quot;#F3F0E9&quot;),
+      axis.text = element_text(family = &quot;Arial&quot;, size = 12, color = &quot;#F3F0E9&quot;, face = &quot;bold&quot;),
+      axis.line = element_line(color = &quot;#F8F5E0&quot;, size = 1),
+      axis.line.x.top = element_line(color = &quot;#3B3B3B&quot;)
+      
+    )
+ 
+}</code></pre>
+<pre class="r"><code>ggplot(data = mtcars, aes(x = disp, y = mpg)) + 
+  geom_point(color = &quot;white&quot;) +
+  labs(title = &quot;Cars are cool?&quot;,
+       subtitle = &quot;Making a custom theme is cooler&quot;,
+       caption = &quot;I should start using captions more&quot;) +
+  theme_nichole()</code></pre>
+<p><img src="/post/2020-04-29-make-your-own-custom-ggplot-theme_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>

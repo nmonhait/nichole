@@ -1,0 +1,4 @@
+theme = "hugo-flex"
+baseURL = "http://example.org/"
+languageCode = "en-us"
+title = "Nichole Monhait"

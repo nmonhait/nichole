@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+  
+    <meta name="description" content="Data The Colorado Department of Public Health and Environment (CDPHE) has an Open Data portal for many health indicators, linked here. Data can be downloaded in .csv format, which is what I did here for the Income/Poverty dataset. The purpose of this project is to provide an easy framework to generate a similar visualization. This project has no relation to the accuracy of the data nor the insight gathered. I used the following code to bring the data into RStudio.">
+  
+
+
+
+
+
+
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Exploring Income/Poverty in Colorado Using R"/>
+<meta name="twitter:description" content="Data The Colorado Department of Public Health and Environment (CDPHE) has an Open Data portal for many health indicators, linked here. Data can be downloaded in .csv format, which is what I did here for the Income/Poverty dataset. The purpose of this project is to provide an easy framework to generate a similar visualization. This project has no relation to the accuracy of the data nor the insight gathered. I used the following code to bring the data into RStudio."/>
+
+
+
+<meta name="generator" content="Hugo 0.69.2" />
+  <title>Exploring Income/Poverty in Colorado Using R | Nichole Monhait</title>
+  <link rel="canonical" href="/post/2020-04-25-co-poverty/">
+
+
+  
+
+
+
+
+
+
+
+
+  
+    
+  
+  
+  <link rel="stylesheet" href="/css/base.min.5125ab77b0169e4d5acd02d1d6c88e7febc32fe590c296901948e6ddce1ed047.css" integrity="sha256-USWrd7AWnk1azQLR1siOf&#43;vDL&#43;WQwpaQGUjm3c4e0Ec=" crossorigin="anonymous">
+
+
+
+</head>
+
+<body>
+  <nav class="u-background">
+  <div class="u-wrapper">
+    <ul class="Banner">
+      <li class="Banner-item Banner-item--title">
+        <a class="Banner-link u-clickable" href="/">Nichole Monhait</a>
+      </li>
+      
+        <li class="Banner-item">
+          <a class="Banner-link u-clickable" href="/about/">About</a>
+        </li>
+      
+        <li class="Banner-item">
+          <a class="Banner-link u-clickable" href="/post/">Posts</a>
+        </li>
+      
+        <li class="Banner-item">
+          <a class="Banner-link u-clickable" href="/tags/">Tags</a>
+        </li>
+      
+        <li class="Banner-item">
+          <a class="Banner-link u-clickable" href="/index.xml">RSS</a>
+        </li>
+      
+    </ul>
+  </div>
+</nav>
+  <main>
+    <div class="u-wrapper">
+      <div class="u-padding">
+        
+
+  <article>
+    <header class="Heading">
+  <h2 class="Heading-title">
+    <a class="Heading-link u-clickable" href="/post/2020-04-25-co-poverty/" rel="bookmark">Exploring Income/Poverty in Colorado Using R</a>
+  </h2>
+  
+    <time datetime="2020-04-25T00:00:00Z">25 April, 2020</time>
+  
+</header>
+    
+
+
+<div id="data" class="section level3">
+<h3>Data</h3>
+<p>The Colorado Department of Public Health and Environment (CDPHE) has an Open Data portal for many health indicators, linked <a href="https://data-cdphe.opendata.arcgis.com/">here</a>. Data can be downloaded in .csv format, which is what I did here for the Income/Poverty dataset. The purpose of this project is to provide an easy framework to generate a similar visualization. This project has no relation to the accuracy of the data nor the insight gathered. I used the following code to bring the data into RStudio.</p>
+<pre class="r"><code>co_income &lt;- read_csv(&quot;/Users/monhait/Desktop/r/nichole/data/IncomePoverty_Census_Tracts.csv&quot;, col_names = TRUE)</code></pre>
+</div>
+<div id="data-preparation" class="section level3">
+<h3>Data Preparation</h3>
+<p>I decided that my end product would be a visualization of Colorado counties with the highest percentage of people below the poverty limit. I arbitrarily decided that my cutoff would be at the top 10 counties, so set <code>n=10</code> at the beginning of my script.</p>
+<p>To prepare the data, I first selected the columns <code>County</code> and <code>Percent_Poverty_AllPeople_Income_Below_Pov_Level</code>. Luckily, this dataset was already fairly clean. I then grouped on <code>County</code>, to ultimately create the <code>average_poverty</code> column which found the average percentage of people below the poverty limit per county. If you take a look at the unprepared data, you will see that there are several rows for each county, which is why I had to group them. After, I made the <code>County</code> variable a factor and lumped to get my 10 columns. I used <code>n=n</code> within the <code>fct_lump</code> call to designate my cutoff of 10 that I discussed above. Using <code>fct_lump</code> allows you to do this and all other counties then get an <code>Other</code> designation, which was filtered out. Lastly, I added a <code>plot_text</code> column that will later be used in the ggplot call.</p>
+<pre class="r"><code>n &lt;- 10
+
+poverty_by_county &lt;- co_income %&gt;% 
+  select(County, Percent_Poverty_AllPeople_Income_Below_Pov_Level) %&gt;% 
+  group_by(County) %&gt;% 
+  summarize(average_poverty = mean(Percent_Poverty_AllPeople_Income_Below_Pov_Level, na.rm = TRUE)) %&gt;% 
+  ungroup() %&gt;% 
+  mutate(County = as_factor(str_to_title(County)) %&gt;% fct_lump(n = n, w = average_poverty) %&gt;% 
+           fct_reorder(average_poverty)) %&gt;% 
+  mutate_if(is.numeric, ~round(., 1)) %&gt;% 
+  filter(County != &quot;Other&quot;) %&gt;%    
+  mutate(plot_text = str_glue(&quot;County: {County}\nPercent Poverty: {average_poverty}%&quot;))</code></pre>
+<p>To create the lollipop chart, I used <code>geom_segment</code> and <code>geom_point</code>. Additional customization code is shown below.</p>
+<pre class="r"><code>co_county_poverty_plot &lt;- poverty_by_county %&gt;% 
+  
+  #Geometries
+  ggplot(aes(County, average_poverty)) +
+  geom_segment(aes(yend = 0, xend = County)) +
+  geom_point() +
+  geom_text(aes(label = plot_text),
+            hjust = &quot;outward&quot;,
+            size = 3) +
+  
+  #Formatting
+  scale_y_continuous(limits = c(0,50), expand = c(0,0)) +
+  coord_flip() +
+
+  #Labels
+  labs(title = &quot;Colorado Counties with the Highest Poverty Percentage&quot;,
+       subtitle = str_glue(&quot;Top {n} based on CDPHE Open Data Portal&quot;),
+       y = &quot;Avg. Percent of all People Below Poverty Limit (%)&quot;,
+       x = &quot;County Name&quot;) +
+  theme_minimal()</code></pre>
+<p><img src="/post/2020-04-25-co-poverty_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+
+    
+
+
+  
+
+  
+
+
+
+
+
+  <footer>
+    
+      
+    
+      
+        <ul class="Tags">
+          
+            <li class="Tags-item u-background">
+              <a class="Tags-link u-clickable" href="/tags/income/" rel="tag">income</a>
+            </li>
+          
+            <li class="Tags-item u-background">
+              <a class="Tags-link u-clickable" href="/tags/plot/" rel="tag">plot</a>
+            </li>
+          
+            <li class="Tags-item u-background">
+              <a class="Tags-link u-clickable" href="/tags/r-markdown/" rel="tag">R Markdown</a>
+            </li>
+          
+        </ul>
+      
+    
+  </footer>
+
+    
+  
+
+  </article>
+
+
+      </div>
+    </div>
+  </main>
+  
+  <footer class="Footer">
+    <div class="u-wrapper">
+      <div class="u-padding">
+        Except where otherwise noted, content on this site is licensed under a &#32; <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">Creative Commons Attribution 4.0 International License</a>.
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>

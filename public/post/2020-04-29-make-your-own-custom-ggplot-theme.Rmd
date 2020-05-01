@@ -1,0 +1,81 @@
+---
+title: Make your own custom ggplot theme
+author: Nichole Monhait
+date: '2020-04-29'
+slug: make-your-own-custom-ggplot-theme
+categories: []
+tags:
+  - customize
+  - ggplot
+---
+
+```{r, include=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+```
+
+
+### Why make your own theme?  
+
+There are several great built in themes that you can use with ggplot(). In most cases, these are sufficient. However, you may want to customize a theme for yourself in a few scenarios. First, if you are at an organization or university that has a preset style guide (colors and fonts that remain consistent), it's a great idea to create content that aligns with that guide. Second, if you find yourself altering your plots in the same way each time, it may be a good idea to create a theme to avoid the several lines of code that it may take to style your plots. For me, I have an affinity for `theme_minimal` and absolutely no affinity for choosing nice looking color schemes. I would prefer to have a preset theme rather than code these adjustments (and google which colors 'go' together) each time. Lastly, it's great practice to make a theme. It gives great insight into the backbone of ggplot themes, which I found to be really interesting.   
+
+### Getting started  
+
+Since I often use `theme_minimal`, that was my starting point. I knew that I wanted to add the following on top of the already nice `theme_minimal`:  
+
+- black background  
+- some sort of unique color scheme  
+
+Since I knew I would need to test changes, I started with the following code (using `mtcars` data) and plot rendered as-is.
+
+```{r, message=FALSE, warning=FALSE }
+ggplot(data = mtcars, aes(x = disp, y = mpg)) + 
+  geom_point() +
+  labs(title = "Cars are cool?",
+       subtitle = "Making a custom theme is cooler",
+       caption = "I should start using captions more") 
+```
+
+### Customizing Theme  
+
+At first glance, all of the options available inside of the `theme()` function are a bit intimidating. You can literally customize anything...which is why it is so awesome. A simple `?theme` will show you what is available. Once you realize the general structure, it is really quite easy- you designate which attribute you are trying to alter, modify using one of the 4 element functions (`element_text`, `element_line`, `element_rect`, or `element_blank`), and then change pieces like color, size, location, etc. For example, to change the plot color to black, I first found the appropriate call using `?theme`. Using `plot.background` (found from `?theme`), I then called `element_rect`, and set `fill = "black`. This simple structure allows you to completely customize your own ggplot theme. I packaged this is a function titled `theme_nichole` so that I can source the script if I decided to use this theme often. Within the function, I used `theme_minimal() %+replace%` to build upon `theme_minimal`.  
+
+### Code
+
+```{r, message=FALSE, warning=FALSE}
+theme_nichole <- function(){
+  
+  theme_minimal() %+replace%
+    
+    theme(
+      
+      
+      #grid elements
+      plot.background = element_rect(fill = "black"),#fill = "#3B3B3B"),
+      panel.background = element_rect(fill = "black", size = 1, color = NA),
+      panel.border = element_blank(),
+      panel.grid.major = element_line(color = "#696969", linetype = "dashed", size = 0.2),
+      panel.grid.minor = element_line(color = "#696969", linetype = "dashed", size = 0.2),
+      
+      #text elements
+      plot.title = element_text(family = "Arial Black", size = 18, color = "CadetBlue", face = "bold", hjust = 0.5 ),
+      plot.subtitle = element_text(family = "Trebuchet MS", size = 12, face = "italic", hjust = 0.5, color = "#F3F0E9"),
+      plot.caption = element_text(family = "Trebuchet MS", size = 10, color = "#E7F0E9", hjust = 1),
+      axis.title = element_text(family = "Arial", size = 12, color = "#F3F0E9"),
+      axis.text = element_text(family = "Arial", size = 12, color = "#F3F0E9", face = "bold"),
+      axis.line = element_line(color = "#F8F5E0", size = 1),
+      axis.line.x.top = element_line(color = "#3B3B3B")
+      
+    )
+ 
+}
+```
+
+```{r}
+ggplot(data = mtcars, aes(x = disp, y = mpg)) + 
+  geom_point(color = "white") +
+  labs(title = "Cars are cool?",
+       subtitle = "Making a custom theme is cooler",
+       caption = "I should start using captions more") +
+  theme_nichole()
+```
+
